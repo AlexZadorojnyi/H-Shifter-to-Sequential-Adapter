@@ -1,7 +1,7 @@
 H-Shifter to Sequential Adapter
 ==============
 
-This is an AutoHotkey script to emulate the output of an H-shifter to that of a sequential shifter. This can be used to play video games that do not natively support H-shifter controllers.
+This is an AutoHotkey script to use the output of an H-shifter to emulate a sequential shifter. This can be used to play video games that do not natively support H-shifter controllers.
 
 About
 --------------
@@ -26,4 +26,4 @@ How To Use
 - Open the .ini file and configure the settings. Refer to the Logitech Profiler to find the numbers assigned to your controller's keys. These should be written in "Joy#" format in the settings.
 - Run either the .exe file OR the .ahk file from the same directory as the .ini file. To run the .ahk file AutoHotkey must be installed.
 - Run the game.
-- Exit from the script by right-clicking on the icon in the notification of the toolbar.
+- Exit from the script by right-clicking on the icon in the notification area of the toolbar.

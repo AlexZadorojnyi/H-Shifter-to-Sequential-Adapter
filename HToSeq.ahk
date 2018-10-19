@@ -60,7 +60,7 @@ ResetToNeutral:
 CarIsInNeutralCheck()
 if (CarIsInNeutralFlag1 == 1) && (CarIsInNeutralFlag2 == 1) && (Gear != 0) {
 	Shift(0, 0)
-	SoundBeep, 750, 200
+	;SoundBeep, 750, 200
 }
 CarIsInNeutralFlag2 := CarIsInNeutralFlag1
 return
