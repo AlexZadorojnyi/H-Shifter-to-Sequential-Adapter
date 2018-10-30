@@ -1,39 +1,42 @@
 ﻿; The top gear of the car
 global TopGear
-IniRead, TopGear, settings.ini, settings, TopGear
-; How far the clutch needs to be pressed in order to shift gears
-global ClutchBitePoint
-IniRead, ClutchBitePoint, settings.ini, settings, ClutchBitePoint
-; The delay between key presses in milliseconds
-global Delay
-IniRead, Delay, settings.ini, settings, Delay
+IniRead, TopGear, Settings.ini, Settings, TopGear
 ; The gear the car starts in when spawned
 global DefaultGear
-IniRead, DefaultGear, settings.ini, settings, DefaultGear
+IniRead, DefaultGear, Settings.ini, Settings, DefaultGear
+; How far the clutch needs to be pressed in order to shift gears
+global ClutchBitePoint
+IniRead, ClutchBitePoint, Settings.ini, Settings, ClutchBitePoint
+; How much the throttle needs to be released in order to shift gears
+global ThrottleBitePoint
+IniRead, ThrottleBitePoint, Settings.ini, Settings, ThrottleBitePoint
+; The delay between key presses in milliseconds
+global Delay
+IniRead, Delay, Settings.ini, Settings, Delay
 ; Whether or not the car can be set to neutral
 global NeutralSkip
-IniRead, NeutralSkip, settings.ini, settings, NeutralSkip
+IniRead, NeutralSkip, Settings.ini, Settings, NeutralSkip
 ; Tool tip flag
 global ToolTipOn
-IniRead, ToolTipOn, settings.ini, settings, ToolTipOn
+IniRead, ToolTipOn, Settings.ini, Settings, ToolTipOn
 
 ; Shift up key
 global ShiftUpKey
-IniRead, ShiftUpKey, settings.ini, keys, ShiftUpKey
+IniRead, ShiftUpKey, Settings.ini, Keys, ShiftUpKey
 ; Shift down key
 global ShiftDownKey
-IniRead, ShiftDownKey, settings.ini, keys, ShiftDownKey
+IniRead, ShiftDownKey, Settings.ini, Keys, ShiftDownKey
 ; Top gear set key
-IniRead, TopGearSetKey, settings.ini, keys, TopGearSetKey
+IniRead, TopGearSetKey, Settings.ini, Keys, TopGearSetKey
 Hotkey, %TopGearSetKey%, SetTopGear
 ; Gear sync key
-IniRead, GearSyncKey, settings.ini, keys, GearSyncKey
+IniRead, GearSyncKey, Settings.ini, Keys, GearSyncKey
 Hotkey, %GearSyncKey%, SyncGears
 ; Delay increase key
-IniRead, DelayIncreaseKey, settings.ini, keys, DelayIncreaseKey
+IniRead, DelayIncreaseKey, Settings.ini, Keys, DelayIncreaseKey
 Hotkey, %DelayIncreaseKey%, DelayIncrease
 ; Delay decrease key
-IniRead, DelayDecreaseKey, settings.ini, keys, DelayDecreaseKey
+IniRead, DelayDecreaseKey, Settings.ini, Keys, DelayDecreaseKey
 Hotkey, %DelayDecreaseKey%, DelayDecrease
 
 ; The gear the car is in
@@ -50,16 +53,17 @@ if(DefaultGear == 0)
 	SetTimer, ResetToNeutral, 1000
 return
 
-; Updates clutch position
+; Updates clutch and throttle position
 WatchAxis:
 GetKeyState, Clutch, JoyU
+GetKeyState, Throttle, JoyZ
 return
 
 ; Resets gears to neutral
 ResetToNeutral:
 CarIsInNeutralCheck()
 if (CarIsInNeutralFlag1 == 1) && (CarIsInNeutralFlag2 == 1) && (Gear != 0) {
-	Shift(0, 0)
+	Shift(0, 0, 100)
 	;SoundBeep, 750, 200
 }
 CarIsInNeutralFlag2 := CarIsInNeutralFlag1
@@ -94,21 +98,21 @@ Loop {
 	}
 }
 if GetKeyState("Joy9")
-	Shift(1, 0)
+	Shift(1, 0, 100)
 else if GetKeyState("Joy10")
-	Shift(2, 0)
+	Shift(2, 0, 100)
 else if GetKeyState("Joy11")
-	Shift(3, 0)
+	Shift(3, 0, 100)
 else if GetKeyState("Joy12")
-	Shift(4, 0)
+	Shift(4, 0, 100)
 else if GetKeyState("Joy13")
-	Shift(5, 0)
+	Shift(5, 0, 100)
 else if GetKeyState("Joy14")
-	Shift(6, 0)
+	Shift(6, 0, 100)
 else if GetKeyState("Joy15")
-	Shift(-1, 0)
+	Shift(-1, 0, 100)
 else
-	Shift(0, 0)
+	Shift(0, 0, 100)
 return
 
 ; Increase the delay between key presses
@@ -125,42 +129,42 @@ return
 
 ; 1st gear
 Joy9::
-Shift(1, Clutch)
+Shift(1, Clutch, Throttle)
 return
 
 ; 2nd gear
 Joy10::
-Shift(2, Clutch)
+Shift(2, Clutch, Throttle)
 return
 
 ; 3rd gear
 Joy11::
-Shift(3, Clutch)
+Shift(3, Clutch, Throttle)
 return
 
 ; 4th gear
 Joy12::
-Shift(4, Clutch)
+Shift(4, Clutch, Throttle)
 return
 
 ; 5th gear
 Joy13::
-Shift(5, Clutch)
+Shift(5, Clutch, Throttle)
 return
 
 ; 6th gear
 Joy14::
-Shift(6, Clutch)
+Shift(6, Clutch, Throttle)
 return
 
 ; Reverse gear
 Joy15::
-Shift(-1, Clutch)
+Shift(-1, Clutch, Throttle)
 return
 
 ; Shift function
-Shift(n, Clutch){
-	if (Clutch < ClutchBitePoint) && (n <= TopGear) {
+Shift(n, Clutch, Throttle){
+	if (Clutch < ClutchBitePoint) && (Throttle > ThrottleBitePoint) && (n <= TopGear) {
 		n := n - Gear
 		; If shifting up
 		if (n > 0) {
