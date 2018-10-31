@@ -20,6 +20,8 @@ IniRead, NeutralSkip, Settings.ini, Settings, NeutralSkip
 global ToolTipOn
 IniRead, ToolTipOn, Settings.ini, Settings, ToolTipOn
 
+; ValidateSettings()
+
 ; Shift up key
 global ShiftUpKey
 IniRead, ShiftUpKey, Settings.ini, Keys, ShiftUpKey
@@ -44,18 +46,22 @@ global Gear = DefaultGear
 ; Neutral flags for resetting the car into neutral after a race
 global CarIsInNeutralFlag1 = 1
 global CarIsInNeutralFlag2 = 1
+; Clutch flag to monitor that the clutch was released between shifts
+global ClutchWasReleased = 1
 
 DisplayToolTip()
 
 #Persistent
 SetTimer, WatchAxis, 5
-if(DefaultGear == 0)
+if (DefaultGear == 0)
 	SetTimer, ResetToNeutral, 1000
 return
 
 ; Updates clutch and throttle position
 WatchAxis:
 GetKeyState, Clutch, JoyU
+if (ClutchWasReleased == 0) && (Clutch > ClutchBitePoint)
+	ClutchWasReleased = 1
 GetKeyState, Throttle, JoyZ
 return
 
@@ -164,7 +170,9 @@ return
 
 ; Shift function
 Shift(n, Clutch, Throttle){
-	if (Clutch < ClutchBitePoint) && (Throttle > ThrottleBitePoint) && (n <= TopGear) {
+	if (ClutchWasReleased == 1) && (n <= TopGear) && (Clutch <= ClutchBitePoint) && (Throttle >= ThrottleBitePoint) {
+		if (ClutchBitePoint != 100) 
+			ClutchWasReleased = 0
 		n := n - Gear
 		; If shifting up
 		if (n > 0) {
@@ -206,7 +214,8 @@ Press(button){
 ; Display debug tool tip function
 DisplayToolTip(){
 	if ToolTipOn
-		ToolTip, Gear: %Gear%`nTop Gear: %TopGear%`nDelay: %Delay%ms`nClutchBitePoint: %ClutchBitePoint%`nShiftUpKey: %ShiftUpKey%`nShiftDownKey: %ShiftDownKey%`nDefaultGear: %DefaultGear%
+		ToolTip, Gear: %Gear%`nTop Gear: %TopGear%`nDelay: %Delay%ms`nClutchBitePoint: %ClutchBitePoint%`nThrottleBitePoint: %ThrottleBitePoint%`nShiftUpKey: %ShiftUpKey%`nShiftDownKey: %ShiftDownKey%`nDefaultGear: %DefaultGear%
+	return
 }
 
 ; Neutral check function
@@ -215,4 +224,24 @@ CarIsInNeutralCheck(){
 		CarIsInNeutralFlag1 = 0
 	else
 		CarIsInNeutralFlag1 = 1
+	return
+}
+
+; Checks that the settings are within acceptable value ranges
+ValidateSettings(){
+	if (TopGear > 6) || (TopGear < -1) 
+		TopGear = 6
+	if (DefaultGear > 6) || (DefaultGear < -1) 
+		DefaultGear = 0
+	if (ClutchBitePoint > 100) || (ClutchBitePoint < 0)
+		ClutchBitePoint = 25
+	if (ThrottleBitePoint > 100) || (ThrottleBitePoint < 0)
+		ThrottleBitePoint = 75
+	if (Delay < 0) 
+		Delay = 0
+	if (NeutralSkip != 0) && (NeutralSkip != 1)
+		NeutralSkip = 0
+	if (ToolTipOn != 0) && (ToolTipOn != 1)
+		ToolTipOn = 0
+	return
 }
