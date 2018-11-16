@@ -40,6 +40,9 @@ Hotkey, %DelayIncreaseKey%, DelayIncrease
 ; Delay decrease key
 IniRead, DelayDecreaseKey, Settings.ini, Keys, DelayDecreaseKey
 Hotkey, %DelayDecreaseKey%, DelayDecrease
+; Delay decrease key
+IniRead, SaveSettingsKey, Settings.ini, Keys, SaveSettingsKey
+Hotkey, %SaveSettingsKey%, SaveSettings
 
 ; The gear the car is in
 global Gear = DefaultGear
@@ -131,6 +134,12 @@ return
 DelayDecrease:
 Delay -= 5
 DisplayToolTip()
+return
+
+; Saves the setting that can be changed through the script
+SaveSettings:
+IniWrite, %TopGear%, Settings.ini, Settings, TopGear
+IniWrite, %Delay%, Settings.ini, Settings, Delay
 return
 
 ; 1st gear
